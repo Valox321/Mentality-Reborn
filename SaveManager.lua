@@ -317,7 +317,8 @@ local SaveManager = {} do
         })
 
         -- Config list dropdown
-        self.ConfigListDropdown = section:Listbox({
+        self.ConfigListDropdown = section:Dropdown({
+            Name     = "Select Config",
             Flag     = "SaveManager_ConfigList",
             Items    = self:RefreshConfigList(),
             Callback = function(v) self.SelectedConfig = v end,
