@@ -887,25 +887,13 @@ local Library do
         local List = { }
 
         local ConfigFolderName = StringGSub(Library.Folders.Configs, Library.Folders.Directory .. "/", "")
-
+        
         for Index, Value in listfiles(Library.Folders.Configs) do
-            local FileName = StringGSub(Value, Library.Folders.Directory .. "\\" .. ConfigFolderName .. "\\", "")
-            List[Index] = FileName
+            local FileName = Value:match("([^/\\]+)$")
+            List[#List + 1] = FileName
         end
 
-        local IsNew = #List ~= CurrentList
-
-        if not IsNew then
-            for Index = 1, #List do
-                if List[Index] ~= CurrentList[Index] then
-                    IsNew = true
-                    break
-                end
-            end
-        else
-            CurrentList = List
-            Element:Refresh(CurrentList)
-        end
+        Element:Refresh(List)
     end
 
     Library.SetAutoload = function(self, Config)
@@ -7401,7 +7389,7 @@ local Library do
                 Flag = "ConfigsName",
                 Placeholder = "Name",
                 Numeric = false,
-                Finished = true,
+                Finished = false,
                 Callback = function(Value)
                     ConfigName = Value
                 end
