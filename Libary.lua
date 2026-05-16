@@ -104,6 +104,54 @@ local Library do
     Library.Sections.__index = Library.Sections
     Library.Pages.__index = Library.Pages
 
+    local FetchIcons, Icons = pcall(function()
+        return (loadstring(
+            game:HttpGet("https://raw.githubusercontent.com/deividcomsono/lucide-roblox-direct/refs/heads/main/source.lua")
+        ))()
+    end)
+
+    function Library:GetIcon(IconName)
+        if not FetchIcons then
+            return
+        end
+
+        local Success, Icon = pcall(Icons.GetAsset, IconName)
+        if not Success then
+            return
+        end
+        return Icon
+    end
+
+    function Library:GetCustomIcon(IconName)
+        if not IconName then
+            return nil
+        end
+
+        if tonumber(IconName) then
+            return {
+                Url = "rbxassetid://" .. tostring(IconName),
+                ImageRectOffset = Vector2.new(0, 0),
+                ImageRectSize = Vector2.new(0, 0)
+            }
+        end
+
+        local LucideIcon = Library:GetIcon(IconName)
+        if LucideIcon then
+            return LucideIcon
+        end
+
+        local finalUrl = IconName
+        if not IconName:find("rbxassetid://") and not IconName:find("http") then
+            finalUrl = "rbxassetid://" .. IconName
+        end
+
+        return {
+            Url = finalUrl,
+            ImageRectOffset = Vector2.new(0, 0),
+            ImageRectSize = Vector2.new(0, 0)
+        }
+    end
+
     local Keys = {
         ["Unknown"]           = "Unknown",
         ["Backspace"]         = "Back",
@@ -2178,13 +2226,16 @@ local Library do
                 
 
                 if Data.Icon then
+                    local IconData = Library:GetCustomIcon(Data.Icon)
                     Items["Icon"] = Instances:Create("ImageLabel", {
                         Parent = Items["Notification"].Instance,
                         Name = "\0",
                         ImageColor3 = FromRGB(255, 255, 255),
                         BorderColor3 = FromRGB(0, 0, 0),
                         AnchorPoint = Vector2New(1, 0),
-                        Image = "rbxassetid://"..Data.Icon,
+                        Image = IconData.Url,
+                        ImageRectOffset = IconData.ImageRectOffset,
+                        ImageRectSize = IconData.ImageRectSize,
                         BackgroundTransparency = 1,
                         Position = UDim2New(1, 0, 0, 0),
                         Size = UDim2New(0, 16, 0, 16),
@@ -2474,6 +2525,7 @@ local Library do
                     PaddingLeft = UDimNew(0, 12)
                 })
 
+                local LogoData = Library:GetCustomIcon(Window.Logo)
                 Items["Logo"] = Instances:Create("ImageLabel", {
                     Parent = Items["MainFrame"].Instance,
                     Name = "\0",
@@ -2481,7 +2533,9 @@ local Library do
                     ScaleType = Enum.ScaleType.Fit,
                     BorderColor3 = FromRGB(0, 0, 0),
                     Size = UDim2New(0, 35, 0, 35),
-                    Image = "rbxassetid://"..Window.Logo,
+                    Image = LogoData.Url,
+                    ImageRectOffset = LogoData.ImageRectOffset,
+                    ImageRectSize = LogoData.ImageRectSize,
                     BackgroundTransparency = 1,
                     Position = UDim2New(0, 12, 0, 12),
                     ZIndex = 2,
@@ -3494,6 +3548,7 @@ local Library do
                     Transparency = NumSequence{NumSequenceKeypoint(0, 0.41874998807907104), NumSequenceKeypoint(0.445, 0.78125), NumSequenceKeypoint(0.751, 0.9375), NumSequenceKeypoint(1, 1)}
                 })
                 
+                local IconData = Library:GetCustomIcon(Page.Icon)
                 Items["Icon"] = Instances:Create("ImageLabel", {
                     Parent = Items["Inactive"].Instance,
                     Name = "\0",
@@ -3501,7 +3556,9 @@ local Library do
                     BorderColor3 = FromRGB(0, 0, 0),
                     Size = UDim2New(0, 18, 0, 18),
                     AnchorPoint = Vector2New(0, 0.5),
-                    Image = "rbxassetid://"..Page.Icon,
+                    Image = IconData.Url,
+                    ImageRectOffset = IconData.ImageRectOffset,
+                    ImageRectSize = IconData.ImageRectSize,
                     BackgroundTransparency = 1,
                     Position = UDim2New(0, 16, 0.5, 0),
                     ZIndex = 2,
