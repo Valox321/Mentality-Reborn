@@ -61,6 +61,7 @@ local Library do
         MenuKeybind = tostring(Enum.KeyCode.RightControl), 
 
         Flags = { },
+        Ignore = { "ConfigsList", "ConfigsName" },
 
         Tween = {
             Time = 0.3,
@@ -841,6 +842,10 @@ local Library do
 
         local Success, Result = Library:SafeCall(function()
             for Index, Value in Library.Flags do 
+                if TableFind(Library.Ignore, Index) then
+                    continue
+                end
+
                 if type(Value) == "table" and Value.Key then
                     Config[Index] = {Key = tostring(Value.Key), Mode = Value.Mode}
                 elseif type(Value) == "table" and Value.Color then
@@ -859,19 +864,25 @@ local Library do
 
         local Success, Result = Library:SafeCall(function()
             for Index, Value in Decoded do 
+                if TableFind(Library.Ignore, Index) then
+                    continue
+                end
+
                 local SetFunction = Library.SetFlags[Index]
 
                 if not SetFunction then
                     continue
                 end
 
-                if type(Value) == "table" and Value.Key then 
-                    SetFunction(Value)
-                elseif type(Value) == "table" and Value.Color then
-                    SetFunction(Value.Color, Value.Alpha)
-                else
-                    SetFunction(Value)
-                end
+                task.spawn(function()
+                    if type(Value) == "table" and Value.Key then 
+                        SetFunction(Value)
+                    elseif type(Value) == "table" and Value.Color then
+                        SetFunction(Value.Color, Value.Alpha)
+                    else
+                        SetFunction(Value)
+                    end
+                end)
             end
         end)
 
@@ -7387,7 +7398,7 @@ local Library do
                 end
             })
             
-            ConfigsSection:Textbox({
+            local ConfigNameTextbox = ConfigsSection:Textbox({
                 Flag = "ConfigsName",
                 Placeholder = "Name",
                 Numeric = false,
@@ -7400,7 +7411,7 @@ local Library do
             ConfigsSection:Button({
                 Name = "Create",
                 Callback = function()
-                    if ConfigName and ConfigName ~= "" then
+                    if ConfigName and ConfigName:gsub(" ", "") ~= "" then
                         local FullPath = Library.Folders.Configs .. "/" .. ConfigName
                         if not FullPath:find("%.json$") then
                             FullPath = FullPath .. ".json"
@@ -7409,6 +7420,21 @@ local Library do
                         if not isfile(FullPath) then
                             writefile(FullPath, Library:GetConfig())
                             Library:RefreshConfigsList(ConfigsDropdown)
+                            
+                            Library:Notification({
+                                Title = "Success",
+                                Description = "Created config " .. ConfigName,
+                                Duration = 3
+                            })
+                            
+                            ConfigNameTextbox:Set("")
+                            ConfigName = ""
+                        else
+                            Library:Notification({
+                                Title = "Error",
+                                Description = "Config already exists!",
+                                Duration = 3
+                            })
                         end
                     end
                 end
@@ -7420,6 +7446,12 @@ local Library do
                     if ConfigSelected then
                         Library:DeleteConfig(ConfigSelected)
                         Library:RefreshConfigsList(ConfigsDropdown)
+                        
+                        Library:Notification({
+                            Title = "Success",
+                            Description = "Deleted config " .. ConfigSelected,
+                            Duration = 3
+                        })
                     end
                 end
             })
@@ -7429,15 +7461,27 @@ local Library do
                 Callback = function()
                     if ConfigSelected then
                         Library:LoadConfig(readfile(Library.Folders.Configs .. "/" .. ConfigSelected))
+                        
+                        Library:Notification({
+                            Title = "Success",
+                            Description = "Loaded config " .. ConfigSelected,
+                            Duration = 3
+                        })
                     end
                 end
             })
 
             ConfigsSection:Button({
-                Name = "Save",
+                Name = "Save (Overwrite)",
                 Callback = function()
                     if ConfigSelected then
                         writefile(Library.Folders.Configs .. "/" .. ConfigSelected, Library:GetConfig())
+                        
+                        Library:Notification({
+                            Title = "Success",
+                            Description = "Overwrote config " .. ConfigSelected,
+                            Duration = 3
+                        })
                     end
                 end
             })
@@ -7457,6 +7501,12 @@ local Library do
                     if ConfigSelected then
                         Library:SetAutoload(ConfigSelected)
                         AutoloadLabel:SetText("Current autoload config: " .. ConfigSelected)
+                        
+                        Library:Notification({
+                            Title = "Success",
+                            Description = "Set " .. ConfigSelected .. " as autoload",
+                            Duration = 3
+                        })
                     end
                 end
             })
@@ -7466,6 +7516,12 @@ local Library do
                 Callback = function()
                     Library:SetAutoload("none")
                     AutoloadLabel:SetText("Current autoload config: none")
+                    
+                    Library:Notification({
+                        Title = "Success",
+                        Description = "Reset autoload config",
+                        Duration = 3
+                    })
                 end
             })
 
