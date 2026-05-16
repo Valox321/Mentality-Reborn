@@ -2176,38 +2176,41 @@ local Library do
                     return RGBSequence{RGBSequenceKeypoint(0, Library.Theme.Accent), RGBSequenceKeypoint(1, Library.Theme.AccentGradient)}
                 end})
                 
-                Items["Icon"] = Instances:Create("ImageLabel", {
-                    Parent = Items["Notification"].Instance,
-                    Name = "\0",
-                    ImageColor3 = FromRGB(255, 255, 255),
-                    BorderColor3 = FromRGB(0, 0, 0),
-                    AnchorPoint = Vector2New(1, 0),
-                    Image = "rbxassetid://"..Data.Icon,
-                    BackgroundTransparency = 1,
-                    Position = UDim2New(1, 0, 0, 0),
-                    Size = UDim2New(0, 16, 0, 16),
-                    BorderSizePixel = 0,
-                    BackgroundColor3 = FromRGB(255, 255, 255)
-                })
-                
-                if not Data.IconColor then
-                    Instances:Create("UIGradient", {
-                        Parent = Items["Icon"].Instance,
+
+                if Data.Icon then
+                    Items["Icon"] = Instances:Create("ImageLabel", {
+                        Parent = Items["Notification"].Instance,
                         Name = "\0",
-                        Rotation = -115,
-                        Color = RGBSequence{RGBSequenceKeypoint(0, FromRGB(255, 255, 255)), RGBSequenceKeypoint(1, FromRGB(143, 143, 143))}
-                    }):AddToTheme({Color = function()
-                        return RGBSequence{RGBSequenceKeypoint(0, Library.Theme.Accent), RGBSequenceKeypoint(1, Library.Theme.AccentGradient)}
-                    end})             
-                else
-                    Instances:Create("UIGradient", {
-                        Parent = Items["Icon"].Instance,
-                        Name = "\0",
-                        Rotation = -115,
-                        Color = RGBSequence{RGBSequenceKeypoint(0, Data.IconColor.Start), RGBSequenceKeypoint(1, Data.IconColor.End)}
-                    })         
-                end   
-            end
+                        ImageColor3 = FromRGB(255, 255, 255),
+                        BorderColor3 = FromRGB(0, 0, 0),
+                        AnchorPoint = Vector2New(1, 0),
+                        Image = "rbxassetid://"..Data.Icon,
+                        BackgroundTransparency = 1,
+                        Position = UDim2New(1, 0, 0, 0),
+                        Size = UDim2New(0, 16, 0, 16),
+                        BorderSizePixel = 0,
+                        BackgroundColor3 = FromRGB(255, 255, 255)
+                    })
+                    
+                    if not Data.IconColor then
+                        Instances:Create("UIGradient", {
+                            Parent = Items["Icon"].Instance,
+                            Name = "\0",
+                            Rotation = -115,
+                            Color = RGBSequence{RGBSequenceKeypoint(0, FromRGB(255, 255, 255)), RGBSequenceKeypoint(1, FromRGB(143, 143, 143))}
+                        }):AddToTheme({Color = function()
+                            return RGBSequence{RGBSequenceKeypoint(0, Library.Theme.Accent), RGBSequenceKeypoint(1, Library.Theme.AccentGradient)}
+                        end})             
+                    else
+                        Instances:Create("UIGradient", {
+                            Parent = Items["Icon"].Instance,
+                            Name = "\0",
+                            Rotation = -115,
+                            Color = RGBSequence{RGBSequenceKeypoint(0, Data.IconColor.Start), RGBSequenceKeypoint(1, Data.IconColor.End)}
+                        })         
+                    end
+                end
+            end -- close: local Items = { } do
 
             local Size = Items["Notification"].Instance.AbsoluteSize
             Items["Notification"].Instance.Size = UDim2New(0, 0, 0, 0)
