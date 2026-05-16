@@ -427,7 +427,7 @@ local Library do
                 NewX = MathClamp(NewX, 0, ScreenSize.X - GuiSize.X)
                 NewY = MathClamp(NewY, 0, ScreenSize.Y - GuiSize.Y)
         
-                self:Tween(TweenInfo.new(0.35, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Position = UDim2New(0, NewX, 0, NewY)})
+                Gui.Position = UDim2New(0, NewX, 0, NewY)
             end
         
             local InputChanged
@@ -618,8 +618,8 @@ local Library do
                     h = Minimum.Y
                 end
             
-                self:Tween(TweenInfo.new(0.35, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Position = UDim2FromOffset(x, y)})
-                self:Tween(TweenInfo.new(0.35, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Size = UDim2FromOffset(w, h)})
+                Gui.Position = UDim2FromOffset(x, y)
+                Gui.Size = UDim2FromOffset(w, h)
             end)
         end
 
