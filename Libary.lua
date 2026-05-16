@@ -197,10 +197,12 @@ local Library do
 
     Library.Theme = TableClone(Themes["Preset"])
 
-    -- Folders
-    for Index, Value in Library.Folders do 
-        if not isfolder(Value) then
-            makefolder(Value)
+    -- Folders (Fixed Order)
+    local FolderOrder = { "Directory", "Configs", "Assets" }
+    for _, Key in FolderOrder do
+        local Path = Library.Folders[Key]
+        if Path and not isfolder(Path) then
+            makefolder(Path)
         end
     end
 
@@ -7399,8 +7401,13 @@ local Library do
                 Name = "Create",
                 Callback = function()
                     if ConfigName and ConfigName ~= "" then
-                        if not isfile(Library.Folders.Configs .. "/" .. ConfigName .. ".json") then
-                            writefile(Library.Folders.Configs .. "/" .. ConfigName .. ".json", Library:GetConfig())
+                        local FullPath = Library.Folders.Configs .. "/" .. ConfigName
+                        if not FullPath:find("%.json$") then
+                            FullPath = FullPath .. ".json"
+                        end
+                        
+                        if not isfile(FullPath) then
+                            writefile(FullPath, Library:GetConfig())
                             Library:RefreshConfigsList(ConfigsDropdown)
                         end
                     end
