@@ -3613,9 +3613,7 @@ local Library do
                     Items["Page"]:Tween(TweenInfo.new(0.5, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Position = UDim2New(0, 0, 0, 0), GroupTransparency = 0})
 
                     for Index, Value in Page.Sections do 
-                        task.spawn(function()
-                            Value:TweenElements(true)
-                        end)
+                        Value:TweenElements(true)
                     end
                 else
                     Items["Inactive"]:Tween(nil, {BackgroundTransparency = 1})
@@ -3626,9 +3624,7 @@ local Library do
                     Debounce = false
                     if not Page.Active then 
                         for Index, Value in Page.Sections do 
-                            task.spawn(function()
-                                Value:TweenElements(false, true)
-                            end)
+                            Value:TweenElements(false, true)
                         end
                     end
                 end)
@@ -4929,7 +4925,6 @@ local Library do
                         task.spawn(function()
                             for Index, Value in Settings.Elements do
                                 Value:RefreshPosition(true)
-                                task.wait(0.03)
                             end
                         end)
 
