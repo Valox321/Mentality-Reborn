@@ -864,7 +864,7 @@ local Library do
 
         local Success, Result = Library:SafeCall(function()
             for Index, Value in Decoded do 
-                if TableFind(Library.Ignore, Index) then
+                if TableFind(Library.Ignore, Index) or Index == "MenuBind" then
                     continue
                 end
 
@@ -3431,16 +3431,10 @@ local Library do
                         end
                     end
                 end
-
-                Library:LoadAutoload()
             end
 
-            --[[Library:Connect(UserInputService.InputBegan, function(Input)
-                if tostring(Input.KeyCode) == Library.MenuKeybind or tostring(Input.UserInputType) == Library.MenuKeybind then
-                    Window:SetOpen(not Window.IsOpen)
-                end
-            end)]]
-
+            Library:LoadAutoload()
+            
             Window:SetCenter()
             task.wait()
             Window:SetOpen(true)
