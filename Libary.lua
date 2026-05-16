@@ -7461,7 +7461,7 @@ local Library do
                 Callback = function()
                     if ConfigSelected then
                         Library:SetAutoload(ConfigSelected)
-                        AutoloadLabel:Set("Current autoload config: " .. ConfigSelected)
+                        AutoloadLabel:SetText("Current autoload config: " .. ConfigSelected)
                     end
                 end
             })
@@ -7470,7 +7470,7 @@ local Library do
                 Name = "Reset autoload",
                 Callback = function()
                     Library:SetAutoload("none")
-                    AutoloadLabel:Set("Current autoload config: none")
+                    AutoloadLabel:SetText("Current autoload config: none")
                 end
             })
 
