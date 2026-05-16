@@ -2,7 +2,7 @@ local cloneref = (cloneref or clonereference or function(instance: any) return i
 local HttpService = cloneref(game:GetService("HttpService"))
 
 local SaveManager = {} do
-    SaveManager.Folder = "lyapossss"
+    SaveManager.Folder = "MentalityReborn"
     SaveManager.SubFolder = "Configs"
     SaveManager.Ignore = {}
     SaveManager.Library = nil
@@ -20,6 +20,19 @@ local SaveManager = {} do
         self.SubFolder = folder
         local path = self.Folder .. "/" .. folder
         if not isfolder(path) then makefolder(path) end
+    end
+
+    function SaveManager:IgnoreThemeSettings()
+        self:SetIgnoreIndexes({ 
+            "BackgroundColor", "MainColor", "AccentColor", "OutlineColor", "FontColor", -- Basic theme elements
+            "ThemeManager_ThemeList", "ThemeManager_CustomThemeList", "ThemeManager_CustomThemeName"
+        })
+    end
+
+    function SaveManager:SetIgnoreIndexes(list)
+        for _, key in pairs(list) do
+            table.insert(self.Ignore, key)
+        end
     end
 
     function SaveManager:Save(name)
@@ -74,6 +87,15 @@ local SaveManager = {} do
     function SaveManager:SaveAutoloadConfig(name)
         local path = self.Folder .. "/autoload.txt"
         writefile(path, name or "none")
+    end
+
+    function SaveManager:LoadAutoloadConfig()
+        task.spawn(function()
+            local autoload = self:GetAutoloadConfig()
+            if autoload ~= "none" then
+                self:Load(autoload)
+            end
+        end)
     end
 
     function SaveManager:BuildConfigSection(tab)
