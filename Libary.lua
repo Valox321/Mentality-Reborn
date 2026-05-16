@@ -5258,6 +5258,40 @@ local Library do
             return Button
         end
 
+        Library.Sections.MultiButton = function(self, Data)
+            Data = Data or { }
+            local Buttons = Data.Buttons or { }
+            
+            local Row = Instances:Create("Frame", {
+                Parent = self.Items["Content"].Instance,
+                BackgroundTransparency = 1,
+                Size = UDim2New(1, 0, 0, 32),
+                ZIndex = 2
+            })
+
+            Instances:Create("UIListLayout", {
+                Parent = Row.Instance,
+                FillDirection = Enum.FillDirection.Horizontal,
+                Padding = UDimNew(0, 5),
+                SortOrder = Enum.SortOrder.LayoutOrder
+            })
+
+            local Elements = { }
+            for i, v in ipairs(Buttons) do
+                local Button = self:Button({
+                    Name = v.Name,
+                    Callback = v.Callback
+                })
+                
+                Button.Items["Button"].Instance.Parent = Row.Instance
+                Button.Items["Button"].Instance.Size = UDim2New(1 / #Buttons, -(((#Buttons - 1) * 5) / #Buttons), 1, 0)
+                
+                table.insert(Elements, Button)
+            end
+            
+            return Elements
+        end
+
         Library.Sections.Slider = function(self, Data)
             Data = Data or { }
 
