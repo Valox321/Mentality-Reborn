@@ -3532,11 +3532,12 @@ local Library do
                     BackgroundColor3 = FromRGB(255, 255, 255)
                 })  Items["Text"]:AddToTheme({TextColor3 = "Text"})      
                 
-                Items["Page"] = Instances:Create("Frame", {
+                Items["Page"] = Instances:Create("CanvasGroup", {
                     Parent = Library.UnusedHolder.Instance,
                     Name = "\0",
                     Visible = false,
                     BackgroundTransparency = 1,
+                    GroupTransparency = 1,
                     Size = UDim2New(1, 0, 1, 0),
                     BorderColor3 = FromRGB(0, 0, 0),
                     ZIndex = 2,
@@ -3609,7 +3610,7 @@ local Library do
 
                 if Page.Active then
                     Items["Inactive"]:Tween(nil, {BackgroundTransparency = 0.25})
-                    Items["Page"]:Tween(TweenInfo.new(0.5, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Position = UDim2New(0, 0, 0, 0)})
+                    Items["Page"]:Tween(TweenInfo.new(0.5, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Position = UDim2New(0, 0, 0, 0), GroupTransparency = 0})
 
                     for Index, Value in Page.Sections do 
                         task.spawn(function()
@@ -3618,45 +3619,17 @@ local Library do
                     end
                 else
                     Items["Inactive"]:Tween(nil, {BackgroundTransparency = 1})
-                    Items["Page"]:Tween(TweenInfo.new(0.5, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Position = UDim2New(0, 0, 0, 60)})
+                    Items["Page"]:Tween(TweenInfo.new(0.5, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Position = UDim2New(0, 0, 0, 60), GroupTransparency = 1})
                 end
 
-                task.spawn(function()
-                    local AllInstances = Items["Page"].Instance:GetDescendants()
-                    TableInsert(AllInstances, Items["Page"].Instance)
-                    
-                    local NewTween 
-
-                    for i = 1, #AllInstances do 
-                        local Value = AllInstances[i]
-                        local TransparencyProperty = Tween:GetProperty(Value)
-
-                        if TransparencyProperty then 
-                            if type(TransparencyProperty) == "table" then 
-                                for _, Property in TransparencyProperty do 
-                                    NewTween = Tween:FadeItem(Value, Property, Bool, Library.FadeSpeed)
-                                end
-                            else
-                                NewTween = Tween:FadeItem(Value, TransparencyProperty, Bool, Library.FadeSpeed)
-                            end
+                task.delay(0.5, function()
+                    Debounce = false
+                    if not Page.Active then 
+                        for Index, Value in Page.Sections do 
+                            task.spawn(function()
+                                Value:TweenElements(false, true)
+                            end)
                         end
-
-                        if i % 50 == 0 then task.wait() end
-                    end
-
-                    if NewTween then
-                        Library:Connect(NewTween.Tween.Completed, function()
-                            Debounce = false
-                            if not Page.Active then 
-                                for Index, Value in Page.Sections do 
-                                    task.spawn(function()
-                                        Value:TweenElements(false, true)
-                                    end)
-                                end
-                            end
-                        end)
-                    else
-                        Debounce = false
                     end
                 end)
             end
