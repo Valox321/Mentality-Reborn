@@ -378,39 +378,42 @@ local SaveManager = {} do
             end,
         })
 
-        section:Button({
-            Name     = "Set as autoload",
-            Callback = function()
-                local name = self.SelectedConfig
-                if not name then
-                    self.Library:Notification({ Title = "SaveManager", Description = "No config selected", Duration = 2 })
-                    return
-                end
-                local success, err = self:SaveAutoloadConfig(name)
-                if not success then
-                    self.Library:Notification({ Title = "SaveManager", Description = "Failed to set autoload: " .. tostring(err), Duration = 3 })
-                    return
-                end
-                self.Library:Notification({ Title = "SaveManager", Description = string.format('Set "%s" as autoload', name), Duration = 3 })
-                if self.AutoloadLabel then
-                    self.AutoloadLabel:SetText("Current autoload config: " .. name)
-                end
-            end,
-        })
-
-        section:Button({
-            Name     = "Reset autoload",
-            Callback = function()
-                local success, err = self:DeleteAutoLoadConfig()
-                if not success then
-                    self.Library:Notification({ Title = "SaveManager", Description = "Failed to reset autoload: " .. tostring(err), Duration = 3 })
-                    return
-                end
-                self.Library:Notification({ Title = "SaveManager", Description = "Autoload reset to none", Duration = 3 })
-                if self.AutoloadLabel then
-                    self.AutoloadLabel:SetText("Current autoload config: none")
-                end
-            end,
+        section:MultiButton({
+            Buttons = {
+                {
+                    Name     = "Set as autoload",
+                    Callback = function()
+                        local name = self.SelectedConfig
+                        if not name then
+                            self.Library:Notification({ Title = "SaveManager", Description = "No config selected", Duration = 2 })
+                            return
+                        end
+                        local success, err = self:SaveAutoloadConfig(name)
+                        if not success then
+                            self.Library:Notification({ Title = "SaveManager", Description = "Failed to set autoload: " .. tostring(err), Duration = 3 })
+                            return
+                        end
+                        self.Library:Notification({ Title = "SaveManager", Description = string.format('Set "%s" as autoload', name), Duration = 3 })
+                        if self.AutoloadLabel then
+                            self.AutoloadLabel:SetText("Current autoload config: " .. name)
+                        end
+                    end,
+                },
+                {
+                    Name     = "Reset autoload",
+                    Callback = function()
+                        local success, err = self:DeleteAutoLoadConfig()
+                        if not success then
+                            self.Library:Notification({ Title = "SaveManager", Description = "Failed to reset autoload: " .. tostring(err), Duration = 3 })
+                            return
+                        end
+                        self.Library:Notification({ Title = "SaveManager", Description = "Autoload reset to none", Duration = 3 })
+                        if self.AutoloadLabel then
+                            self.AutoloadLabel:SetText("Current autoload config: none")
+                        end
+                    end,
+                }
+            }
         })
 
         -- Shows the currently active autoload config
