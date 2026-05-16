@@ -154,7 +154,7 @@ local SaveManager = {} do
 
         local lib = self.Library
         for flag, value in pairs(decoded) do
-            if not self.Ignore[flag] then
+            if not self.Ignore[flag] and flag ~= "MenuKeybind" then
                 local setter = lib.SetFlags[flag]
                 if setter then
                     task.spawn(function()
@@ -272,6 +272,15 @@ local SaveManager = {} do
         local ok = pcall(delfile, self:_autoloadPath())
         if not ok then return false, "delete file error" end
         return true, ""
+    end
+
+    function SaveManager:GetAutoloadConfig()
+        local path = self:_autoloadPath()
+        if _isfile(path) then
+            local ok, name = pcall(readfile, path)
+            if ok then return name end
+        end
+        return "none"
     end
 
     -- ─── API: BuildConfigSection ──────────────────────────────────────────────
