@@ -3621,36 +3621,42 @@ local Library do
                     Items["Page"]:Tween(TweenInfo.new(0.5, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Position = UDim2New(0, 0, 0, 60)})
                 end
 
-                local AllInstances = Items["Page"].Instance:GetDescendants()
-                TableInsert(AllInstances, Items["Page"].Instance)
-                
-                local NewTween 
+                task.spawn(function()
+                    local AllInstances = Items["Page"].Instance:GetDescendants()
+                    TableInsert(AllInstances, Items["Page"].Instance)
+                    
+                    local NewTween 
 
-                for Index, Value in AllInstances do 
-                    local TransparencyProperty = Tween:GetProperty(Value)
+                    for i = 1, #AllInstances do 
+                        local Value = AllInstances[i]
+                        local TransparencyProperty = Tween:GetProperty(Value)
 
-                    if not TransparencyProperty then 
-                        continue
+                        if TransparencyProperty then 
+                            if type(TransparencyProperty) == "table" then 
+                                for _, Property in TransparencyProperty do 
+                                    NewTween = Tween:FadeItem(Value, Property, Bool, Library.FadeSpeed)
+                                end
+                            else
+                                NewTween = Tween:FadeItem(Value, TransparencyProperty, Bool, Library.FadeSpeed)
+                            end
+                        end
+
+                        if i % 50 == 0 then task.wait() end
                     end
 
-                    if type(TransparencyProperty) == "table" then 
-                        for _, Property in TransparencyProperty do 
-                            NewTween = Tween:FadeItem(Value, Property, Bool, Library.FadeSpeed)
-                        end
+                    if NewTween then
+                        Library:Connect(NewTween.Tween.Completed, function()
+                            Debounce = false
+                            if not Page.Active then 
+                                for Index, Value in Page.Sections do 
+                                    task.spawn(function()
+                                        Value:TweenElements(false, true)
+                                    end)
+                                end
+                            end
+                        end)
                     else
-                        NewTween = Tween:FadeItem(Value, TransparencyProperty, Bool, Library.FadeSpeed)
-                    end
-                end
-
-                Library:Connect(NewTween.Tween.Completed, function()
-                    Debounce = false
-
-                    if not Page.Active then 
-                        for Index, Value in Page.Sections do 
-                            task.spawn(function()
-                                Value:TweenElements(false, true)
-                            end)   
-                        end
+                        Debounce = false
                     end
                 end)
             end
@@ -4613,9 +4619,6 @@ local Library do
             function Section:TweenElements(Bool, Debounce)
                 for Index, Value in Section.Elements do
                     Value:RefreshPosition(Bool)
-                    if not Debounce then 
-                        task.wait(0.03)
-                    end
                 end
             end
 
@@ -5263,17 +5266,18 @@ local Library do
                     Items["Icon"]:Tween(nil, {ImageColor3 = FromRGB(0, 0, 0), ImageTransparency = 0})
                 end
 
-                task.wait(0.2)
+                task.spawn(Library.SafeCall, Library, Button.Callback)
 
-                Library:SafeCall(Button.Callback)
-                Items["Button"]:ChangeItemTheme({BackgroundColor3 = "Element"})
-                Items["Button"]:Tween(nil, {BackgroundColor3 = Library.Theme.Element})
+                task.delay(0.2, function()
+                    Items["Button"]:ChangeItemTheme({BackgroundColor3 = "Element"})
+                    Items["Button"]:Tween(nil, {BackgroundColor3 = Library.Theme.Element})
 
-                Items["Text"]:Tween(nil, {TextColor3 = Library.Theme.Text, TextTransparency = 0.3})
+                    Items["Text"]:Tween(nil, {TextColor3 = Library.Theme.Text, TextTransparency = 0.3})
 
-                if Button.Icon then 
-                    Items["Icon"]:Tween(nil, {ImageColor3 = Library.Theme.Text, ImageTransparency = 0.3})
-                end
+                    if Button.Icon then 
+                        Items["Icon"]:Tween(nil, {ImageColor3 = Library.Theme.Text, ImageTransparency = 0.3})
+                    end
+                end)
             end
 
             Items["Button"]:Connect("MouseButton1Down", function()
