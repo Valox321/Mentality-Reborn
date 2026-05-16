@@ -61,7 +61,6 @@ local Library do
         MenuKeybind = tostring(Enum.KeyCode.RightControl), 
 
         Flags = { },
-        Ignore = { "ConfigsList", "ConfigsName", "MenuBind" },
 
         Tween = {
             Time = 0.3,
@@ -76,8 +75,6 @@ local Library do
             Configs = "lyapossss/Configs",
             Assets = "lyapossss/Assets",
         },
-
-        AutoloadFile = "lyapossss/autoload.txt",
 
         -- Ignore below
         Pages = { },
@@ -198,12 +195,10 @@ local Library do
 
     Library.Theme = TableClone(Themes["Preset"])
 
-    -- Folders (Fixed Order)
-    local FolderOrder = { "Directory", "Configs", "Assets" }
-    for _, Key in FolderOrder do
-        local Path = Library.Folders[Key]
-        if Path and not isfolder(Path) then
-            makefolder(Path)
+    -- Folders
+    for Index, Value in Library.Folders do 
+        if not isfolder(Value) then
+            makefolder(Value)
         end
     end
 
@@ -842,10 +837,6 @@ local Library do
 
         local Success, Result = Library:SafeCall(function()
             for Index, Value in Library.Flags do 
-                if TableFind(Library.Ignore, Index) then
-                    continue
-                end
-
                 if type(Value) == "table" and Value.Key then
                     Config[Index] = {Key = tostring(Value.Key), Mode = Value.Mode}
                 elseif type(Value) == "table" and Value.Color then
@@ -864,25 +855,19 @@ local Library do
 
         local Success, Result = Library:SafeCall(function()
             for Index, Value in Decoded do 
-                if TableFind(Library.Ignore, Index) or Index == "MenuBind" then
-                    continue
-                end
-
                 local SetFunction = Library.SetFlags[Index]
 
                 if not SetFunction then
                     continue
                 end
 
-                task.spawn(function()
-                    if type(Value) == "table" and Value.Key then 
-                        SetFunction(Value)
-                    elseif type(Value) == "table" and Value.Color then
-                        SetFunction(Value.Color, Value.Alpha)
-                    else
-                        SetFunction(Value)
-                    end
-                end)
+                if type(Value) == "table" and Value.Key then 
+                    SetFunction(Value)
+                elseif type(Value) == "table" and Value.Color then
+                    SetFunction(Value.Color, Value.Alpha)
+                else
+                    SetFunction(Value)
+                end
             end
         end)
 
@@ -900,30 +885,24 @@ local Library do
         local List = { }
 
         local ConfigFolderName = StringGSub(Library.Folders.Configs, Library.Folders.Directory .. "/", "")
-        
+
         for Index, Value in listfiles(Library.Folders.Configs) do
-            local FileName = Value:match("([^/\\]+)$")
-            List[#List + 1] = FileName
+            local FileName = StringGSub(Value, Library.Folders.Directory .. "\\" .. ConfigFolderName .. "\\", "")
+            List[Index] = FileName
         end
 
-        Element:Refresh(List)
-    end
+        local IsNew = #List ~= CurrentList
 
-    Library.SetAutoload = function(self, Config)
-        writefile(Library.AutoloadFile, Config)
-    end
-
-    Library.GetAutoload = function(self)
-        if isfile(Library.AutoloadFile) then
-            return readfile(Library.AutoloadFile)
-        end
-        return "none"
-    end
-
-    Library.LoadAutoload = function(self)
-        local Autoload = Library:GetAutoload()
-        if Autoload ~= "none" and isfile(Library.Folders.Configs .. "/" .. Autoload) then
-            Library:LoadConfig(readfile(Library.Folders.Configs .. "/" .. Autoload))
+        if not IsNew then
+            for Index = 1, #List do
+                if List[Index] ~= CurrentList[Index] then
+                    IsNew = true
+                    break
+                end
+            end
+        else
+            CurrentList = List
+            Element:Refresh(CurrentList)
         end
     end
 
@@ -2261,21 +2240,21 @@ local Library do
                 Items["Notification"]:Tween(TweenInfo.new(1, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out, 0, false, 0), {Size = UDim2New(0, Size.X, 0, Size.Y)})
                 Items["Accent"]:Tween(TweenInfo.new(Data.Duration, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut), {Size = UDim2New(1, 0, 0, 6)})
 
-                task.wait(Data.Duration + 0.15)
-
-                for Index, Value in Items do 
-                    if Value.Instance:IsA("Frame") then
-                        Value:Tween(nil, {BackgroundTransparency = 1})
-                    elseif Value.Instance:IsA("TextLabel") then 
-                        Value:Tween(nil, {TextTransparency = 1})
-                    elseif Value.Instance:IsA("ImageLabel") then 
-                        Value:Tween(nil, {ImageTransparency = 1})
+                task.delay(Data.Duration + 0.15, function()
+                    for Index, Value in Items do 
+                        if Value.Instance:IsA("Frame") then
+                            Value:Tween(nil, {BackgroundTransparency = 1})
+                        elseif Value.Instance:IsA("TextLabel") then 
+                            Value:Tween(nil, {TextTransparency = 1})
+                        elseif Value.Instance:IsA("ImageLabel") then 
+                            Value:Tween(nil, {ImageTransparency = 1})
+                        end
                     end
-                end
 
-                Items["Notification"]:Tween(TweenInfo.new(1, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out, 0, false, 0), {Size = UDim2New(0, 0, 0, 0)})
-                task.wait(1)
-                Items["Notification"]:Clean()
+                    Items["Notification"]:Tween(TweenInfo.new(1, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out, 0, false, 0), {Size = UDim2New(0, 0, 0, 0)})
+                    task.wait(0.5)
+                    Items["Notification"]:Clean()
+                end)
             end)
         end
 
@@ -3433,8 +3412,12 @@ local Library do
                 end
             end
 
-            Library:LoadAutoload()
-            
+            --[[Library:Connect(UserInputService.InputBegan, function(Input)
+                if tostring(Input.KeyCode) == Library.MenuKeybind or tostring(Input.UserInputType) == Library.MenuKeybind then
+                    Window:SetOpen(not Window.IsOpen)
+                end
+            end)]]
+
             Window:SetCenter()
             task.wait()
             Window:SetOpen(true)
@@ -7392,11 +7375,11 @@ local Library do
                 end
             })
             
-            local ConfigNameTextbox = ConfigsSection:Textbox({
+            ConfigsSection:Textbox({
                 Flag = "ConfigsName",
                 Placeholder = "Name",
                 Numeric = false,
-                Finished = false,
+                Finished = true,
                 Callback = function(Value)
                     ConfigName = Value
                 end
@@ -7405,30 +7388,10 @@ local Library do
             ConfigsSection:Button({
                 Name = "Create",
                 Callback = function()
-                    if ConfigName and ConfigName:gsub(" ", "") ~= "" then
-                        local FullPath = Library.Folders.Configs .. "/" .. ConfigName
-                        if not FullPath:find("%.json$") then
-                            FullPath = FullPath .. ".json"
-                        end
-                        
-                        if not isfile(FullPath) then
-                            writefile(FullPath, Library:GetConfig())
+                    if ConfigName and ConfigName ~= "" then
+                        if not isfile(Library.Folders.Configs .. "/" .. ConfigName .. ".json") then
+                            writefile(Library.Folders.Configs .. "/" .. ConfigName .. ".json", Library:GetConfig())
                             Library:RefreshConfigsList(ConfigsDropdown)
-                            
-                            Library:Notification({
-                                Title = "Success",
-                                Description = "Created config " .. ConfigName,
-                                Duration = 3
-                            })
-                            
-                            ConfigNameTextbox:Set("")
-                            ConfigName = ""
-                        else
-                            Library:Notification({
-                                Title = "Error",
-                                Description = "Config already exists!",
-                                Duration = 3
-                            })
                         end
                     end
                 end
@@ -7440,12 +7403,6 @@ local Library do
                     if ConfigSelected then
                         Library:DeleteConfig(ConfigSelected)
                         Library:RefreshConfigsList(ConfigsDropdown)
-                        
-                        Library:Notification({
-                            Title = "Success",
-                            Description = "Deleted config " .. ConfigSelected,
-                            Duration = 3
-                        })
                     end
                 end
             })
@@ -7455,27 +7412,15 @@ local Library do
                 Callback = function()
                     if ConfigSelected then
                         Library:LoadConfig(readfile(Library.Folders.Configs .. "/" .. ConfigSelected))
-                        
-                        Library:Notification({
-                            Title = "Success",
-                            Description = "Loaded config " .. ConfigSelected,
-                            Duration = 3
-                        })
                     end
                 end
             })
 
             ConfigsSection:Button({
-                Name = "Save (Overwrite)",
+                Name = "Save",
                 Callback = function()
                     if ConfigSelected then
                         writefile(Library.Folders.Configs .. "/" .. ConfigSelected, Library:GetConfig())
-                        
-                        Library:Notification({
-                            Title = "Success",
-                            Description = "Overwrote config " .. ConfigSelected,
-                            Duration = 3
-                        })
                     end
                 end
             })
@@ -7486,40 +7431,6 @@ local Library do
                     Library:RefreshConfigsList(ConfigsDropdown)
                 end
             })
-
-            local AutoloadLabel = ConfigsSection:Label("Current autoload config: " .. Library:GetAutoload())
-
-            ConfigsSection:Button({
-                Name = "Set as autoload",
-                Callback = function()
-                    if ConfigSelected then
-                        Library:SetAutoload(ConfigSelected)
-                        AutoloadLabel:SetText("Current autoload config: " .. ConfigSelected)
-                        
-                        Library:Notification({
-                            Title = "Success",
-                            Description = "Set " .. ConfigSelected .. " as autoload",
-                            Duration = 3
-                        })
-                    end
-                end
-            })
-
-            ConfigsSection:Button({
-                Name = "Reset autoload",
-                Callback = function()
-                    Library:SetAutoload("none")
-                    AutoloadLabel:SetText("Current autoload config: none")
-                    
-                    Library:Notification({
-                        Title = "Success",
-                        Description = "Reset autoload config",
-                        Duration = 3
-                    })
-                end
-            })
-
-            Library:RefreshConfigsList(ConfigsDropdown)
         end
 
         return Page
