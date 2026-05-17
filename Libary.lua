@@ -782,8 +782,130 @@ local Library do
             self.Holder:Clean()
         end
 
+        if self.UnusedHolder then 
+            self.UnusedHolder:Clean()
+        end
+
+        if self.DraggableLabels then
+            for _, LabelObj in self.DraggableLabels do
+                pcall(function() LabelObj:Destroy() end)
+            end
+            self.DraggableLabels = nil
+        end
+
         Library = nil 
         getgenv().Library = nil
+    end
+
+    Library.AddDraggableLabel = function(self, Text, IconName)
+        local DraggableLabel = {
+            Visible = true,
+            Text = Text or ""
+        }
+
+        local Items = {} do
+            -- Base frame
+            Items["Base"] = Instances:Create("Frame", {
+                Parent = Library.Holder.Instance,
+                Name = "Watermark",
+                Active = true,
+                Selectable = true,
+                Position = UDim2New(0.02, 0, 0.05, 0),
+                BackgroundColor3 = FromRGB(27, 26, 29),
+                AutomaticSize = Enum.AutomaticSize.XY,
+                Size = UDim2New(0, 0, 0, 0),
+                BorderSizePixel = 0,
+                ZIndex = 100
+            }) Items["Base"]:AddToTheme({BackgroundColor3 = "Section Background 2"})
+
+            -- Corner
+            Instances:Create("UICorner", {
+                Parent = Items["Base"].Instance,
+                CornerRadius = UDimNew(0, 6)
+            })
+
+            -- Padding
+            Instances:Create("UIPadding", {
+                Parent = Items["Base"].Instance,
+                PaddingTop = UDimNew(0, 6),
+                PaddingBottom = UDimNew(0, 6),
+                PaddingLeft = UDimNew(0, 10),
+                PaddingRight = UDimNew(0, 10)
+            })
+
+            -- Stroke
+            Instances:Create("UIStroke", {
+                Parent = Items["Base"].Instance,
+                Thickness = 1,
+                Color = Library.Theme.Accent,
+                ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+            }):AddToTheme({Color = "Accent"})
+
+            -- Layout
+            Instances:Create("UIListLayout", {
+                Parent = Items["Base"].Instance,
+                FillDirection = Enum.FillDirection.Horizontal,
+                VerticalAlignment = Enum.VerticalAlignment.Center,
+                Padding = UDimNew(0, 6),
+                SortOrder = Enum.SortOrder.LayoutOrder
+            })
+
+            -- Icon (optional)
+            if IconName then
+                local IconData = Library:GetCustomIcon(IconName)
+                if IconData then
+                    Items["Icon"] = Instances:Create("ImageLabel", {
+                        Parent = Items["Base"].Instance,
+                        Name = "Icon",
+                        BackgroundTransparency = 1,
+                        Size = UDim2New(0, 14, 0, 14),
+                        Image = IconData.Url,
+                        ImageRectOffset = IconData.ImageRectOffset,
+                        ImageRectSize = IconData.ImageRectSize,
+                        ZIndex = 101
+                    }):AddToTheme({ImageColor3 = "Text"})
+                end
+            end
+
+            -- Text
+            Items["Label"] = Instances:Create("TextLabel", {
+                Parent = Items["Base"].Instance,
+                Name = "Label",
+                BackgroundTransparency = 1,
+                FontFace = Library.Font,
+                TextColor3 = FromRGB(240, 240, 240),
+                Text = DraggableLabel.Text,
+                TextSize = 13,
+                AutomaticSize = Enum.AutomaticSize.XY,
+                ZIndex = 101
+            }):AddToTheme({TextColor3 = "Text"})
+
+            -- Make Draggable!
+            Items["Base"]:MakeDraggable()
+        end
+
+        -- Methods
+        function DraggableLabel:SetVisible(Bool)
+            DraggableLabel.Visible = Bool
+            Items["Base"].Instance.Visible = Bool
+        end
+
+        function DraggableLabel:SetText(NewText)
+            DraggableLabel.Text = NewText
+            Items["Label"].Instance.Text = NewText
+        end
+
+        function DraggableLabel:Destroy()
+            Items["Base"]:Clean()
+        end
+
+        -- Add to Library's list for cleanup
+        if not Library.DraggableLabels then
+            Library.DraggableLabels = {}
+        end
+        table.insert(Library.DraggableLabels, DraggableLabel)
+
+        return DraggableLabel
     end
 
     Library.GetImage = function(self, Image)
