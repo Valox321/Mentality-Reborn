@@ -357,6 +357,16 @@ local Library do
 
             setmetatable(NewItem, Instances)
 
+            if Class == "UICorner" then
+                if not Library.UICorners then
+                    Library.UICorners = setmetatable({}, {__mode = "v"})
+                end
+                table.insert(Library.UICorners, NewItem.Instance)
+                if Library.CornerRadius and NewItem.Properties then
+                    NewItem.Properties.CornerRadius = UDim.new(0, Library.CornerRadius)
+                end
+            end
+
             for Property, Value in NewItem.Properties do
                 NewItem.Instance[Property] = Value
             end
@@ -907,6 +917,19 @@ local Library do
 
         return DraggableLabel
     end
+
+    Library.SetCornerRadius = function(self, Value)
+        Library.CornerRadius = Value
+        if Library.UICorners then
+            for _, Corner in pairs(Library.UICorners) do
+                pcall(function()
+                    Corner.CornerRadius = UDim.new(0, Value)
+                end)
+            end
+        end
+    end
+
+    Library.SetCorner = Library.SetCornerRadius
 
     Library.GetImage = function(self, Image)
         local ImageData = self.Images[Image]
