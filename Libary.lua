@@ -2326,6 +2326,8 @@ local Library do
                 CurrentAlignment = "LeftTabs"
             }
 
+            function Window:SetOpen(Bool) end
+
             local Items = { } do
                 Items["MainFrame"] = Instances:Create("Frame", {
                     Parent = Library.Holder.Instance,
@@ -3458,6 +3460,8 @@ local Library do
             --]]
 
             function Window:Init()
+                if Window.Initialized then return end
+                Window.Initialized = true
                 for __, Value in Window.Pages do 
                     if Value.Active then 
                         for _, Value2 in Value.Sections do 
@@ -3478,6 +3482,9 @@ local Library do
             Window:SetCenter()
             task.wait()
             Window:SetOpen(true)
+            task.defer(function()
+                Window:Init()
+            end)
             return setmetatable(Window, Library)
         end
 
