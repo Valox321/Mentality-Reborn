@@ -359,7 +359,7 @@ local Library do
 
             if Class == "UICorner" then
                 if not Library.UICorners then
-                    Library.UICorners = setmetatable({}, {__mode = "v"})
+                    Library.UICorners = {}
                 end
                 table.insert(Library.UICorners, NewItem.Instance)
                 if Library.CornerRadius and NewItem.Properties then
@@ -921,11 +921,16 @@ local Library do
     Library.SetCornerRadius = function(self, Value)
         Library.CornerRadius = Value
         if Library.UICorners then
-            for _, Corner in pairs(Library.UICorners) do
+            local CleanTable = {}
+            for _, Corner in ipairs(Library.UICorners) do
                 pcall(function()
-                    Corner.CornerRadius = UDim.new(0, Value)
+                    if Corner and Corner.Parent then
+                        Corner.CornerRadius = UDim.new(0, Value)
+                        table.insert(CleanTable, Corner)
+                    end
                 end)
             end
+            Library.UICorners = CleanTable
         end
     end
 
