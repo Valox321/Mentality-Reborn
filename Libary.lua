@@ -357,7 +357,7 @@ local Library do
 
             setmetatable(NewItem, Instances)
 
-            if Class == "UICorner" then
+            if Class == "UICorner" and Properties and Properties.Name == "WindowCorner" then
                 if not Library.UICorners then
                     Library.UICorners = {}
                 end
@@ -2518,6 +2518,18 @@ local Library do
 
                 Library:MakeBlurred(Items["LeftTabs"], Window)
 
+                -- Right-edge cover for LeftTabs to make it straight in the middle
+                Instances:Create("Frame", {
+                    Parent = Items["LeftTabs"].Instance,
+                    Name = "RightEdgeCover",
+                    BorderSizePixel = 0,
+                    Position = UDim2New(1, -30, 0, 0),
+                    Size = UDim2New(0, 30, 1, 0),
+                    ZIndex = 2,
+                    BackgroundTransparency = 0.15,
+                    BackgroundColor3 = FromRGB(27, 25, 29)
+                }):AddToTheme({BackgroundColor3 = "Background"})
+
                 local Gui = Items["MainFrame"].Instance
 
                 local Dragging = false 
@@ -2817,13 +2829,13 @@ local Library do
 
                 Instances:Create("UICorner", {
                     Parent = Items["MainFrame"].Instance,
-                    Name = "\0",
+                    Name = "WindowCorner",
                     CornerRadius = UDimNew(0, 4)
                 })      
 
                 Instances:Create("UICorner", {
                     Parent = Items["LeftTabs"].Instance,
-                    Name = "\0",
+                    Name = "WindowCorner",
                     CornerRadius = UDimNew(0, 4)
                 })      
                 
