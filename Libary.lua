@@ -863,7 +863,7 @@ local Library do
                         ImageRectOffset = IconData.ImageRectOffset,
                         ImageRectSize = IconData.ImageRectSize,
                         ZIndex = 101
-                    }):AddToTheme({ImageColor3 = "Text"})
+                    }) Items["Icon"]:AddToTheme({ImageColor3 = "Text"})
                 end
             end
 
@@ -878,7 +878,7 @@ local Library do
                 TextSize = 13,
                 AutomaticSize = Enum.AutomaticSize.XY,
                 ZIndex = 101
-            }):AddToTheme({TextColor3 = "Text"})
+            }) Items["Label"]:AddToTheme({TextColor3 = "Text"})
 
             -- Make Draggable!
             Items["Base"]:MakeDraggable()
